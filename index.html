@@ -2,149 +2,98 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<title>Election Transparency Portal</title>
+<title>Election Candidate Portal</title>
 
 <style>
-body { font-family: Arial; background:#f5f7fa; margin:0; }
-
-header {
-    background:#0b5ed7;
-    color:white;
-    padding:25px;
-    text-align:center;
-}
-
-.container {
-    max-width:1000px;
-    margin:auto;
-    background:white;
-    padding:20px;
-    margin-top:20px;
-    border-radius:8px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-select, input {
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
-    font-size:16px;
-}
-
-.candidate {
-    border-bottom:1px solid #eee;
-    padding:15px 0;
-}
-
-button {
-    padding:6px 12px;
-    margin:3px;
-    background:#0b5ed7;
-    color:white;
-    border:none;
-    border-radius:4px;
-    cursor:pointer;
-}
-
-button:hover { background:#084298; }
-
-img {
-    width:80px;
-    height:80px;
-    object-fit:cover;
-    border-radius:5px;
-    margin-right:10px;
-}
+body { font-family: Arial; background:#f4f6f8; margin:0; }
+header { background:#0d6efd; color:white; padding:20px; text-align:center; }
+.container { max-width:1000px; margin:auto; background:white; padding:20px; margin-top:20px; border-radius:8px; }
+select, input { width:100%; padding:10px; margin-bottom:10px; }
+.candidate { border-bottom:1px solid #eee; padding:15px 0; }
+img { width:80px; height:80px; object-fit:cover; margin-right:10px; border-radius:5px; }
+button { margin:3px; padding:6px 10px; background:#0d6efd; color:white; border:none; border-radius:4px; cursor:pointer; }
 </style>
 </head>
-
 <body>
 
 <header>
-<h1>নির্বাচনী প্রার্থী তথ্য পোর্টাল</h1>
-<p>হলফনামা | ব্যয় ও সম্পদ | আয়কর রিটার্ন</p>
+<h2>নির্বাচনী প্রার্থী তথ্য পোর্টাল</h2>
 </header>
 
 <div class="container">
 
-<h3>Search Candidate</h3>
-<input id="search" placeholder="Candidate name...">
+<input id="search" placeholder="Search candidate...">
 
-<h3>Filter</h3>
-<select id="division"></select>
-<select id="district"></select>
-<select id="constituency"></select>
+<select id="division"><option value="">All Divisions</option></select>
+<select id="district"><option value="">All Districts</option></select>
+<select id="constituency"><option value="">All Constituencies</option></select>
 
 <div id="results"></div>
 
 </div>
 
 <script>
-let data = [];
+let data=[];
 
-fetch('candidates.json')
-.then(res => res.json())
-.then(json => {
-    data = json;
+fetch("candidates.json")
+.then(r=>r.json())
+.then(j=>{
+    data=j;
     initFilters();
     render();
 });
 
-const divisionEl = document.getElementById("division");
-const districtEl = document.getElementById("district");
-const constituencyEl = document.getElementById("constituency");
-const searchEl = document.getElementById("search");
+const divEl=document.getElementById("division");
+const distEl=document.getElementById("district");
+const consEl=document.getElementById("constituency");
+const searchEl=document.getElementById("search");
 
-function unique(field, filter={}) {
+function unique(field, filter={}){
     return [...new Set(
-        data.filter(c =>
-            (!filter.division || c.division === filter.division) &&
-            (!filter.district || c.district === filter.district)
-        ).map(c => c[field])
+        data.filter(c=>
+            (!filter.division||c.division===filter.division) &&
+            (!filter.district||c.district===filter.district)
+        ).map(c=>c[field])
     )];
 }
 
 function initFilters(){
-    divisionEl.innerHTML = '<option value="">All Divisions</option>';
     unique("division").forEach(d=>{
-        divisionEl.innerHTML += `<option>${d}</option>`;
+        divEl.innerHTML+=`<option>${d}</option>`;
     });
 }
 
-divisionEl.onchange = ()=>{
-    districtEl.innerHTML = '<option value="">All Districts</option>';
-    unique("district",{division:divisionEl.value}).forEach(d=>{
-        districtEl.innerHTML += `<option>${d}</option>`;
-    });
-    constituencyEl.innerHTML = '<option value="">All Constituencies</option>';
-    render();
-};
-
-districtEl.onchange = ()=>{
-    constituencyEl.innerHTML = '<option value="">All Constituencies</option>';
-    unique("constituency",{division:divisionEl.value,district:districtEl.value})
-    .forEach(c=>{
-        constituencyEl.innerHTML += `<option>${c}</option>`;
+divEl.onchange=()=>{
+    distEl.innerHTML='<option value="">All Districts</option>';
+    unique("district",{division:divEl.value}).forEach(d=>{
+        distEl.innerHTML+=`<option>${d}</option>`;
     });
     render();
 };
 
-constituencyEl.onchange = render;
-searchEl.oninput = render;
+distEl.onchange=()=>{
+    consEl.innerHTML='<option value="">All Constituencies</option>';
+    unique("constituency",{division:divEl.value,district:distEl.value}).forEach(c=>{
+        consEl.innerHTML+=`<option>${c}</option>`;
+    });
+    render();
+};
+
+consEl.onchange=render;
+searchEl.oninput=render;
 
 function render(){
-    const results = document.getElementById("results");
-    results.innerHTML = "";
+    const out=document.getElementById("results");
+    out.innerHTML="";
 
-    data.filter(c =>
-        (!divisionEl.value || c.division === divisionEl.value) &&
-        (!districtEl.value || c.district === districtEl.value) &&
-        (!constituencyEl.value || c.constituency === constituencyEl.value) &&
+    data.filter(c=>
+        (!divEl.value||c.division===divEl.value) &&
+        (!distEl.value||c.district===distEl.value) &&
+        (!consEl.value||c.constituency===consEl.value) &&
         c.name.toLowerCase().includes(searchEl.value.toLowerCase())
-    )
-    .forEach(c => {
-        const base = c.path;
-        results.innerHTML += `
+    ).forEach(c=>{
+        let base=c.path;
+        out.innerHTML+=`
         <div class="candidate">
             <strong>${c.name}</strong><br>
             ${c.division} → ${c.district} → ${c.constituency}<br>
