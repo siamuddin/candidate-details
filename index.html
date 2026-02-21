@@ -1,18 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>index</title>
+<meta charset="UTF-8">
+<title>Election Transparency Portal</title>
+
+<style>
+body { font-family: Arial; background:#f5f7fa; margin:0; }
+
+header {
+    background:#0b5ed7;
+    color:white;
+    padding:25px;
+    text-align:center;
+}
+
+.container {
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    margin-top:20px;
+    border-radius:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+select, input {
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+    font-size:16px;
+}
+
+.candidate {
+    border-bottom:1px solid #eee;
+    padding:15px 0;
+}
+
+button {
+    padding:6px 12px;
+    margin:3px;
+    background:#0b5ed7;
+    color:white;
+    border:none;
+    border-radius:4px;
+    cursor:pointer;
+}
+
+button:hover { background:#084298; }
+
+img {
+    width:80px;
+    height:80px;
+    object-fit:cover;
+    border-radius:5px;
+    margin-right:10px;
+}
+</style>
 </head>
 
 <body>
-  in this page you can check financial statement of every candidate
 
-  <a
-    href="Dhaka/Tangail/tangail-1/১	মুহাম্মদ ইলিয়াছ হোসেন		জাতীয় পার্টি	লাঙ্গল/মুহাম্মদ ইলিয়াছ হোসেন_আয়কর_রিটার্ন.pdf">download
-  </a>
+<header>
+<h1>নির্বাচনী প্রার্থী তথ্য পোর্টাল</h1>
+<p>হলফনামা | ব্যয় ও সম্পদ | আয়কর রিটার্ন</p>
+</header>
+
+<div class="container">
+
+<h3>Search Candidate</h3>
+<input id="search" placeholder="Candidate name...">
+
+<h3>Filter</h3>
+<select id="division"></select>
+<select id="district"></select>
+<select id="constituency"></select>
+
+<div id="results"></div>
+
+</div>
+
+<script>
+let data = [];
+
+fetch('candidates.json')
+.then(res => res.json())
+.then(json => {
+    data = json;
+    initFilters();
+    render();
+});
+
+const divisionEl = document.getElementById("division");
+const districtEl = document.getElementById("district");
+const constituencyEl = document.getElementById("constituency");
+const searchEl = document.getElementById("search");
+
+function unique(field, filter={}) {
+    return [...new Set(
+        data.filter(c =>
+            (!filter.division || c.division === filter.division) &&
+            (!filter.district || c.district === filter.district)
+        ).map(c => c[field])
+    )];
+}
+
+function initFilters(){
+    divisionEl.innerHTML = '<option value="">All Divisions</option>';
+    unique("division").forEach(d=>{
+        divisionEl.innerHTML += `<option>${d}</option>`;
+    });
+}
+
+divisionEl.onchange = ()=>{
+    districtEl.innerHTML = '<option value="">All Districts</option>';
+    unique("district",{division:divisionEl.value}).forEach(d=>{
+        districtEl.innerHTML += `<option>${d}</option>`;
+    });
+    constituencyEl.innerHTML = '<option value="">All Constituencies</option>';
+    render();
+};
+
+districtEl.onchange = ()=>{
+    constituencyEl.innerHTML = '<option value="">All Constituencies</option>';
+    unique("constituency",{division:divisionEl.value,district:districtEl.value})
+    .forEach(c=>{
+        constituencyEl.innerHTML += `<option>${c}</option>`;
+    });
+    render();
+};
+
+constituencyEl.onchange = render;
+searchEl.oninput = render;
+
+function render(){
+    const results = document.getElementById("results");
+    results.innerHTML = "";
+
+    data.filter(c =>
+        (!divisionEl.value || c.division === divisionEl.value) &&
+        (!districtEl.value || c.district === districtEl.value) &&
+        (!constituencyEl.value || c.constituency === constituencyEl.value) &&
+        c.name.toLowerCase().includes(searchEl.value.toLowerCase())
+    )
+    .forEach(c => {
+        const base = c.path;
+        results.innerHTML += `
+        <div class="candidate">
+            <strong>${c.name}</strong><br>
+            ${c.division} → ${c.district} → ${c.constituency}<br>
+
+            <img src="${base}image.png" onerror="this.style.display='none'">
+
+            <div>
+                <a href="${base}1হলফনামা.pdf" target="_blank"><button>হলফনামা</button></a>
+                <a href="${base}2নির্বাচনী ব্যয় ও ব্যক্তিগত সম্পদের বিবরণী.pdf" target="_blank"><button>ব্যয় ও সম্পদ</button></a>
+                <a href="${base}3আয়কর রিটার্ন.pdf" target="_blank"><button>আয়কর</button></a>
+            </div>
+        </div>
+        `;
+    });
+}
+</script>
+
 </body>
-
 </html>
