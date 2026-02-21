@@ -38,16 +38,6 @@ The repository is organized geographically:
 
 This repository includes a searchable public interface.
 
-Features:
-- Division filter
-- District filter
-- Constituency filter
-- Candidate name search
-- Candidate photo
-- Direct PDF access
-
-
-
 Live URL: https://siamuddin.github.io/candidate-details/
 
 
@@ -79,6 +69,4 @@ You can contribute by:
 - Adding missing candidates
 - Uploading missing documents
 - Fixing file names or structure
-- Improving metadata (`candidates.json`)
 
-Pull Requests are welcome.
