@@ -2,114 +2,61 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<title>Election Candidate Portal</title>
-
-<style>
-body { font-family: Arial; background:#f4f6f8; margin:0; }
-header { background:#0d6efd; color:white; padding:20px; text-align:center; }
-.container { max-width:1000px; margin:auto; background:white; padding:20px; margin-top:20px; border-radius:8px; }
-select, input { width:100%; padding:10px; margin-bottom:10px; }
-.candidate { border-bottom:1px solid #eee; padding:15px 0; }
-img { width:80px; height:80px; object-fit:cover; margin-right:10px; border-radius:5px; }
-button { margin:3px; padding:6px 10px; background:#0d6efd; color:white; border:none; border-radius:4px; cursor:pointer; }
-</style>
+<title>Candidate Details Archive</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-<h2>নির্বাচনী প্রার্থী তথ্য পোর্টাল</h2>
+    <h1>Candidate Details Archive</h1>
+    <p>নির্বাচনী প্রার্থীদের হলফনামা, ব্যয় ও সম্পদ, আয়কর তথ্য</p>
 </header>
 
 <div class="container">
+    <h2>About This Repository | এই রিপোজিটরির সম্পর্কে</h2>
+    <p>This repository is a public archive of election candidates’ official documents. 
+       It contains information about each candidate’s affidavit, declared assets, election expenditures, and income tax returns. 
+       The goal is to promote transparency and accountability in the election process.</p>
 
-<input id="search" placeholder="Search candidate...">
+    <p>এই রিপোজিটরিটি নির্বাচনী প্রার্থীদের সরকারি নথির একটি উন্মুক্ত সংরক্ষণাগার। 
+       এতে প্রতিটি প্রার্থীর হলফনামা, ঘোষিত সম্পদ, নির্বাচনী ব্যয় এবং আয়কর রিটার্ন সম্পর্কিত তথ্য সংরক্ষিত আছে। 
+       এর উদ্দেশ্য হলো নির্বাচনী প্রক্রিয়ায় স্বচ্ছতা ও দায়বদ্ধতা নিশ্চিত করা।</p>
 
-<select id="division"><option value="">All Divisions</option></select>
-<select id="district"><option value="">All Districts</option></select>
-<select id="constituency"><option value="">All Constituencies</option></select>
+    <h2>Included Documents | সংরক্ষিত নথি</h2>
+    <ul>
+        <li>হলফনামা (Affidavit)</li>
+        <li>নির্বাচনী ব্যয় ও ব্যক্তিগত সম্পদের বিবরণী (Election Expenses & Assets Statement)</li>
+        <li>আয়কর রিটার্ন (Income Tax Return)</li>
+    </ul>
 
-<div id="results"></div>
+    <p>All files are in PDF format and collected from publicly available official sources. 
+       They are intended for public awareness, research, and journalistic use.</p>
 
+    <p>সমস্ত নথি PDF ফরম্যাটে আছে এবং প্রকাশিত সরকারি উৎস থেকে সংগ্রহ করা হয়েছে। 
+       এগুলো সাধারণ মানুষের সচেতনতা, গবেষণা এবং সাংবাদিকতার জন্য ব্যবহার করা যেতে পারে।</p>
+
+    <h2>Purpose | উদ্দেশ্য</h2>
+    <p>The primary aim of this project is to provide centralized access to candidate disclosures. 
+       Citizens, researchers, and journalists can easily find official information in one place, 
+       helping to enhance transparency in elections.</p>
+
+    <p>এই প্রকল্পের মূল লক্ষ্য হলো প্রার্থীদের প্রকাশিত তথ্য কেন্দ্রীভূতভাবে সরবরাহ করা। 
+       সাধারণ মানুষ, গবেষক এবং সাংবাদিকরা সহজেই এক জায়গায় সরকারি তথ্য খুঁজে পেতে পারেন, 
+       যা নির্বাচনের স্বচ্ছতা বৃদ্ধিতে সহায়ক।</p>
+
+    <h2>How to Use | ব্যবহার পদ্ধতি</h2>
+    <p>Click the button below to access the GitHub repository where all documents are stored. 
+       You can browse candidate folders, view PDFs, and download any file for reference.</p>
+
+    <p>নিচের বোতামে ক্লিক করে GitHub রিপোজিটরিতে যান, যেখানে সমস্ত নথি সংরক্ষিত আছে। 
+       আপনি প্রার্থীর ফোল্ডার ব্রাউজ করতে পারবেন, PDF দেখার সুযোগ পাবেন এবং যেকোনো ফাইল ডাউনলোড করতে পারবেন।</p>
+
+    <a class="button" href="https://github.com/siamuddin/candidate-details" target="_blank">View Repository on GitHub | GitHub-এ দেখুন</a>
 </div>
 
-<script>
-let data=[];
-
-fetch("candidates.json")
-.then(r=>r.json())
-.then(j=>{
-    data=j;
-    initFilters();
-    render();
-});
-
-const divEl=document.getElementById("division");
-const distEl=document.getElementById("district");
-const consEl=document.getElementById("constituency");
-const searchEl=document.getElementById("search");
-
-function unique(field, filter={}){
-    return [...new Set(
-        data.filter(c=>
-            (!filter.division||c.division===filter.division) &&
-            (!filter.district||c.district===filter.district)
-        ).map(c=>c[field])
-    )];
-}
-
-function initFilters(){
-    unique("division").forEach(d=>{
-        divEl.innerHTML+=`<option>${d}</option>`;
-    });
-}
-
-divEl.onchange=()=>{
-    distEl.innerHTML='<option value="">All Districts</option>';
-    unique("district",{division:divEl.value}).forEach(d=>{
-        distEl.innerHTML+=`<option>${d}</option>`;
-    });
-    render();
-};
-
-distEl.onchange=()=>{
-    consEl.innerHTML='<option value="">All Constituencies</option>';
-    unique("constituency",{division:divEl.value,district:distEl.value}).forEach(c=>{
-        consEl.innerHTML+=`<option>${c}</option>`;
-    });
-    render();
-};
-
-consEl.onchange=render;
-searchEl.oninput=render;
-
-function render(){
-    const out=document.getElementById("results");
-    out.innerHTML="";
-
-    data.filter(c=>
-        (!divEl.value||c.division===divEl.value) &&
-        (!distEl.value||c.district===distEl.value) &&
-        (!consEl.value||c.constituency===consEl.value) &&
-        c.name.toLowerCase().includes(searchEl.value.toLowerCase())
-    ).forEach(c=>{
-        let base=c.path;
-        out.innerHTML+=`
-        <div class="candidate">
-            <strong>${c.name}</strong><br>
-            ${c.division} → ${c.district} → ${c.constituency}<br>
-
-            <img src="${base}image.png" onerror="this.style.display='none'">
-
-            <div>
-                <a href="${base}1হলফনামা.pdf" target="_blank"><button>হলফনামা</button></a>
-                <a href="${base}2নির্বাচনী ব্যয় ও ব্যক্তিগত সম্পদের বিবরণী.pdf" target="_blank"><button>ব্যয় ও সম্পদ</button></a>
-                <a href="${base}3আয়কর রিটার্ন.pdf" target="_blank"><button>আয়কর</button></a>
-            </div>
-        </div>
-        `;
-    });
-}
-</script>
+<footer>
+    Maintained by Siamuddin | Public Data for Transparency
+</footer>
 
 </body>
 </html>
