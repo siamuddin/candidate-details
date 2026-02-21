@@ -46,9 +46,7 @@ Features:
 - Candidate photo
 - Direct PDF access
 
-Enable GitHub Pages to view:
 
-**Settings → Pages → Deploy from branch → main → /root**
 
 Live URL: https://siamuddin.github.io/candidate-details/
 
